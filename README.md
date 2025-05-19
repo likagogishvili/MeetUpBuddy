@@ -1,6 +1,6 @@
 # 📅 MeetUpBuddy
 
-**MeetUpBuddy** is a friendly scheduling tool built with **React** and **NestJS**. It helps you share your availability and lets friends, coworkers, or collaborators book time with you — no more endless "When are you free?" messages!
+**MeetUpBuddy** is a friendly scheduling tool built with **Next.js** and **NestJS**. It helps you share your availability and lets friends, coworkers, or collaborators book time with you — no more endless "When are you free?" messages!
 
 ---
 
@@ -15,7 +15,7 @@
 
 ## 🧰 Tech Stack
 
-- **Frontend:** React + TypeScript  
+- **Frontend:** Next.js + TypeScript + Tailwind CSS + ShadCN UI  
 - **Backend:** NestJS (Node.js)  
 - **API:** RESTful architecture  
 - *(Add DB, Redis, Auth, etc. if applicable)*
@@ -48,4 +48,4 @@ Contributions are welcome! Please feel free to submit a Pull Request or open an 
 
 ## 📄 License
 
-MIT License  
+MIT License
