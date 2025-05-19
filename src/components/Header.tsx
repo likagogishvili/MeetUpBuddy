@@ -24,9 +24,9 @@ export default function Header() {
           <Link href="/">
             <Button variant="ghost">Home</Button>
           </Link>
-          <Link href="/availability">
+          {/* <Link href="/availability">
             <Button variant="ghost">Availability</Button>
-          </Link>
+          </Link> */}
           <Link href="/profile">
             <Button variant="ghost">Profile</Button>
           </Link>
