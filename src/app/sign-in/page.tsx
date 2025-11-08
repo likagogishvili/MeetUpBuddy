@@ -37,6 +37,15 @@ export default function SignInPage() {
           localStorage.setItem("accessToken", token);
         } catch {}
       }
+      // Persist customer id if provided by backend response
+      const customerId: string | null =
+        (result?.customer && result.customer.id) ? String(result.customer.id) :
+        (result?.id ? String(result.id) : null);
+      if (customerId) {
+        try {
+          localStorage.setItem("customerId", customerId);
+        } catch {}
+      }
       router.push("/profile");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";

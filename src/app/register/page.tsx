@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Layout from "@/components/Layout";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,7 +42,31 @@ export default function RegisterPage() {
           localStorage.setItem("customerId", result.id);
         } catch {}
       }
-      setMessage("Registration successful.");
+      // Auto sign-in
+      try {
+        const signinRes = await fetch(`${base}/auth/signin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        if (signinRes.ok) {
+          const signin = await signinRes.json();
+          const token = signin?.token || signin?.accessToken || signin?.access_token || null;
+          const signedCustomerId: string | null =
+            (signin?.customer && signin.customer.id) ? String(signin.customer.id) :
+            (signin?.id ? String(signin.id) : result?.id ?? null);
+          try {
+            if (token) localStorage.setItem("accessToken", token);
+            if (signedCustomerId) localStorage.setItem("customerId", signedCustomerId);
+          } catch {}
+          setMessage("Registration successful. Signed in!");
+          router.push("/profile");
+        } else {
+          setMessage("Registration successful. Please sign in.");
+        }
+      } catch {
+        setMessage("Registration successful. Please sign in.");
+      }
       setName("");
       setLastName("");
       setEmail("");

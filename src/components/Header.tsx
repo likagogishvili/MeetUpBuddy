@@ -54,6 +54,9 @@ export default function Header() {
               <Link href="/profile">
                 <Button variant="ghost">Profile</Button>
               </Link>
+              <Link href="/friends">
+                <Button variant="ghost">Find Friends</Button>
+              </Link>
               <Button
                 variant="outline"
                 onClick={() => {
