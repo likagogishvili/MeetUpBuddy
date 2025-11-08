@@ -6,6 +6,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Event } from "@/types/calendarTypes";
+import { Trash2 } from "lucide-react";
 
 const locales = { "en-US": enUS };
 const localizer = dateFnsLocalizer({
@@ -29,8 +30,8 @@ const Modal = ({
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg max-w-sm relative">
-        <button onClick={onClose} className="absolute top-2 right-2">
+      <div className="bg-background text-foreground p-6 rounded-xl w-[min(92vw,560px)] shadow-2xl border relative">
+        <button onClick={onClose} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
           ❌
         </button>
         {children}
@@ -42,18 +43,38 @@ const Modal = ({
 const EventComponent = ({
   event,
   openModal,
+  onDelete,
 }: {
   event: Event;
   openModal: (event: Event) => void;
-}) => (
-  <div
-    className="text-sm p-2 rounded shadow cursor-pointer"
-    style={{ backgroundColor: event.color, color: event.textColor }}
-    onClick={() => openModal(event)}
-  >
-    {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-  </div>
-);
+  onDelete?: (event: Event) => void;
+}) => {
+  const label =
+    event.type.charAt(0).toUpperCase() + event.type.slice(1);
+  return (
+    <div
+      className="group text-sm p-2 rounded shadow cursor-pointer flex items-center justify-between gap-2"
+      style={{ backgroundColor: event.color, color: event.textColor }}
+      onClick={() => openModal(event)}
+    >
+      <span className="truncate">{label}</span>
+      <span className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {onDelete && (
+          <button
+            aria-label="Delete"
+            className="inline-flex rounded-xs hover:opacity-80"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(event);
+            }}
+          >
+            <Trash2 className="size-3.5" />
+          </button>
+        )}
+      </span>
+    </div>
+  );
+};
 
 const CustomToolbar = (toolbar: any) => (
   <div className="rbc-toolbar flex justify-between items-center mb-4">
@@ -83,7 +104,9 @@ const CustomToolbar = (toolbar: any) => (
   </div>
 );
 
-export default function MyCalendar({ events }: { events: Event[] }) {
+import { Button } from "@/components/ui/button";
+
+export default function MyCalendar({ events, onDelete }: { events: Event[]; onDelete?: (event: Event) => void }) {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -98,14 +121,29 @@ export default function MyCalendar({ events }: { events: Event[] }) {
   };
 
   return (
-    <div className="p-2">
+    <div className="p-2 text-left">
       <Modal isOpen={isOpen} onClose={closeModal}>
         {selectedEvent && (
-          <div>
-            <h3 className="font-bold text-lg mb-1 capitalize">
+          <div className="space-y-3">
+            <h3 className="font-bold text-lg capitalize">
               {selectedEvent.type}
             </h3>
-            <p className="text-sm mb-1">{selectedEvent.description}</p>
+            <p className="text-sm">{selectedEvent.description}</p>
+            {onDelete && (
+              <div className="pt-2">
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (selectedEvent) {
+                      onDelete(selectedEvent);
+                      closeModal();
+                    }
+                  }}
+                >
+                  Delete Note
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </Modal>
@@ -117,6 +155,8 @@ export default function MyCalendar({ events }: { events: Event[] }) {
         endAccessor="end"
         style={{ height: 650 }}
         defaultView="month"
+        popup
+        popupOffset={20}
         eventPropGetter={(event: any) => ({
           style: {
             backgroundColor: event.color,
@@ -127,8 +167,12 @@ export default function MyCalendar({ events }: { events: Event[] }) {
         })}
         components={{
           toolbar: CustomToolbar,
-          event: (props: any) => (
-            <EventComponent {...props} openModal={openModal} />
+          event: ({ event }: any) => (
+            <EventComponent
+              event={event}
+              openModal={openModal}
+              onDelete={onDelete}
+            />
           ),
         }}
       />

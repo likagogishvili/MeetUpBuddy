@@ -120,6 +120,40 @@
   }
 }
 
+.rbc-overlay,
+.rbc-popup {
+  z-index: 100; /* above sticky header */
+  background: #0f0f12; /* dark surface */
+  color: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+}
+.rbc-overlay {
+  background-color: #e42b34 !important;
+  padding: 0.5rem;
+}
+.rbc-overlay .rbc-event {
+  background: #000000 !important;            /* override inline styles */
+  color: #18181B !important;              /* override inline styles */
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.5rem;
+}
+.rbc-overlay .rbc-event-content { color: inherit !important; }
+.rbc-overlay .rbc-event:focus,
+.rbc-overlay .rbc-event:hover { box-shadow: 0 0 0 2px var(--ring) inset; }
+.rbc-overlay-header {
+  color: #c9c9cf;
+  font-weight: 600;
+}
+/* Ensure selected calendar items appear with white background for visibility */
+.rbc-event.rbc-selected {
+  background: #fff !important;
+  color: #18181B !important;
+  border: 1px solid var(--border) !important;
+}
+
 .rbc-off-range-bg,
 .rbc-today {
   background-color: #e42b34 !important;

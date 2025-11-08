@@ -21,6 +21,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { Smile } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -36,10 +37,9 @@ import {
 import { useState } from "react";
 
 const formSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  reason: z.string().min(1, "Please provide a reason"),
-  date: z.date({ required_error: "Please select a date" }),
+  title: z.string().min(1, ""),
+  description: z.string().min(1, ""),
+  date: z.date({ required_error: "" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -61,27 +61,68 @@ export default function FormFields({ onAddEvent }: FormFieldsProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      reason: "",
+      title: "",
+      description: "",
       date: undefined,
     },
   });
 
-  const onSubmit = (values: FormValues) => {
-    const eventDate = new Date(values.date);
-    const newEvent = {
-      type: `${values.firstName} ${values.lastName}`,
-      description: values.reason,
-      start: new Date(eventDate.setHours(11, 0, 0, 0)),
-      end: new Date(eventDate.setHours(12, 0, 0, 0)),
-      ...getColorByType("color"),
-    };
+	const EMOJIS: string[] = [
+		"🎉","💛","📚","☕️","🗓️","💬","🚀","🎯","🤝","🍕","🎵","🏃‍♂️",
+		"🧠","🌟","🔥","✨","🥳","🎁","🧋","🍔","🌸",
+	];
 
-    onAddEvent(newEvent);
-    form.reset();
-    setOpen(false); // ❗ closes the dialog
-  };
+	const onSubmit = async (values: FormValues) => {
+		const eventDate = new Date(values.date);
+		const start = new Date(eventDate.setHours(11, 0, 0, 0));
+		const end = new Date(eventDate.setHours(12, 0, 0, 0));
+
+		const newEvent = {
+			type: values.title,
+			description: values.description,
+			start,
+			end,
+			...getColorByType("color"),
+		};
+
+		// Optimistically add to local calendar
+		onAddEvent(newEvent);
+
+		// Also create a backend note (calendar event)
+		try {
+			let customerId: string | null = null;
+			try {
+				customerId = localStorage.getItem("customerId");
+			} catch {
+				// no-op
+			}
+			if (customerId) {
+				const base =
+					process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+				await fetch(`${base}/note`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						title: values.title,
+						description: values.description,
+						date: start.toISOString(),
+						customerId,
+					}),
+				});
+			}
+		} catch {
+			// Ignore network/API errors; local event already added
+		}
+
+		form.reset();
+		setOpen(false); // ❗ closes the dialog
+	};
+
+	function handleInsertEmoji(emoji: string) {
+		const current = form.getValues("title") || "";
+		const next = (current ? current + " " : "") + emoji;
+		form.setValue("title", next);
+	}
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -101,12 +142,39 @@ export default function FormFields({ onAddEvent }: FormFieldsProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="firstName"
+              name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-chewy">First Name</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="font-chewy">Title</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2"
+                          aria-label="Insert emoji into title"
+                        >
+                          <Smile className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 grid grid-cols-8 gap-1 p-2">
+                        {EMOJIS.map((emj) => (
+                          <button
+                            key={emj}
+                            type="button"
+                            className="text-xl leading-none hover:scale-110 transition"
+                            onClick={() => handleInsertEmoji(emj)}
+                          >
+                            {emj}
+                          </button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <FormControl>
-                    <Input placeholder="Enter your first name" {...field} />
+                    <Input placeholder="Enter a title (e.g., Meeting with client)" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,26 +183,12 @@ export default function FormFields({ onAddEvent }: FormFieldsProps) {
 
             <FormField
               control={form.control}
-              name="lastName"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-chewy">Last Name</FormLabel>
+							<FormLabel className="font-chewy">Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your last name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="reason"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-chewy">Reason</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="What’s the occasion?" {...field} />
+                    <Textarea placeholder="Briefly describe the event" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -203,5 +257,9 @@ export default function FormFields({ onAddEvent }: FormFieldsProps) {
 
 // Helper to style color
 function getColorByType(type: string) {
-  return { color: "#18181B", textColor: "#ffffff" };
+  const map: Record<string, { color: string; textColor: string }> = {
+    default: { color: "#18181B", textColor: "#ffffff" },
+    color: { color: "#18181B", textColor: "#ffffff" },
+  };
+  return map[type] ?? map.default;
 }
