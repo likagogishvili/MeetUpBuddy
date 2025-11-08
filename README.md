@@ -16,9 +16,47 @@
 ## 🧰 Tech Stack
 
 - **Frontend:** Next.js + TypeScript + Tailwind CSS + ShadCN UI  
-- **Backend:** NestJS (Node.js)  
-- **API:** RESTful architecture  
+- **Backend API:** NestJS (Node.js) - `MeetUpBuddy_API`  
+- **API:** RESTful architecture (Swagger available)  
 - *(Add DB, Redis, Auth, etc. if applicable)*
+
+---
+
+## 🔗 Backend API
+
+- Repo: `MeetUpBuddy_API` — [github.com/likagogishvili/MeetUpBuddy_API](https://github.com/likagogishvili/MeetUpBuddy_API)
+- Base URL (local): `http://localhost:4001`
+- Docs: `http://localhost:4001/api`
+
+Environment:
+
+```bash
+# .env.local
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4001
+```
+
+Quick start (see API repo for full instructions):
+
+1) Start Redis (Docker or local)  
+2) Run API services from `MeetUpBuddy_API`  
+3) Start this frontend:
+
+```bash
+npm install
+npm run dev
+```
+
+Main endpoints used by the frontend:
+
+- Auth: `POST /auth/signin`
+- Customer: `POST /customer`, `GET /customer/:id`, `GET /customer/:id/notes`
+- Notes: `POST /note`, `GET /note`, `DELETE /note/:id`
+- Friendship:
+  - `POST /friendship/search/:userId` — search by email
+  - `POST /friendship/request/:userId` — send request by email
+  - `GET /friendship/requests/:userId/{received|sent}`
+  - `POST /friendship/respond/:userId`
+  - `GET /friendship/friends/:userId`
 
 ---
 
