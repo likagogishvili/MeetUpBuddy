@@ -9,6 +9,9 @@
 - 🗓 **Add your own events** to mark availability  
 - ✅ **Share free slots** with others  
 - 🤝 **Let people request time** to meet you  
+- 👥 **Send event requests to friends** when creating events
+- ✉️ **Accept or decline event requests** from friends
+- 📊 **View event requests** (sent and received)
 - 🔒 **Private and personal** — you control what others see  
 
 ---
@@ -53,10 +56,14 @@ Main endpoints used by the frontend:
 - Notes: `POST /note`, `GET /note`, `DELETE /note/:id`
 - Friendship:
   - `POST /friendship/search/:userId` — search by email
-  - `POST /friendship/request/:userId` — send request by email
-  - `GET /friendship/requests/:userId/{received|sent}`
-  - `POST /friendship/respond/:userId`
-  - `GET /friendship/friends/:userId`
+  - `POST /friendship/request/:userId` — send friend request by email
+  - `GET /friendship/requests/:userId/{received|sent}` — get friend requests
+  - `POST /friendship/respond/:userId` — accept/reject friend request
+  - `GET /friendship/friends/:userId` — get friends list
+  - `POST /friendship/request-event/:userId` — send event request to friend
+  - `GET /friendship/event-requests/:userId/{received|sent}` — get event requests
+  - `POST /friendship/respond-event/:userId` — accept/decline event request
+  - `POST /friendship/check-availability/:userId` — check friend availability
 
 ---
 
@@ -73,8 +80,8 @@ Main endpoints used by the frontend:
 
 - Calendar sync (Google/Outlook)  
 - Notifications & reminders  
-- Booking approval system  
 - Profile sharing
+- Recurring events
 
 ---
 
