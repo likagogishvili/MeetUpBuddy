@@ -77,28 +77,28 @@ const EventComponent = ({
 };
 
 const CustomToolbar = (toolbar: any) => (
-  <div className="rbc-toolbar flex justify-between items-center mb-4">
-    <span className="rbc-toolbar-label text-xl font-bold text-[#9F9FA9] bg-black">
+  <div className="rbc-toolbar flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b">
+    <span className="rbc-toolbar-label text-2xl font-bold text-foreground">
       {toolbar.label}
     </span>
-    <div className="rbc-btn-group space-x-2">
+    <div className="rbc-btn-group flex gap-2">
       <button
         onClick={() => toolbar.onNavigate("TODAY")}
-        className="!text-[#9F9FA9] hover:!text-black"
+        className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
       >
         Today
       </button>
       <button
         onClick={() => toolbar.onNavigate("PREV")}
-        className="!text-[#9F9FA9] hover:!text-black"
+        className="px-4 py-2 rounded-md text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
       >
-        Back
+        ← Back
       </button>
       <button
         onClick={() => toolbar.onNavigate("NEXT")}
-        className="!text-[#9F9FA9] hover:!text-black"
+        className="px-4 py-2 rounded-md text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
       >
-        Next
+        Next →
       </button>
     </div>
   </div>
@@ -121,16 +121,42 @@ export default function MyCalendar({ events, onDelete }: { events: Event[]; onDe
   };
 
   return (
-    <div className="p-2 text-left">
+    <div className="text-left">
       <Modal isOpen={isOpen} onClose={closeModal}>
         {selectedEvent && (
-          <div className="space-y-3">
-            <h3 className="font-bold text-lg capitalize">
-              {selectedEvent.type}
-            </h3>
-            <p className="text-sm">{selectedEvent.description}</p>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-bold text-xl capitalize mb-2">
+                {selectedEvent.type}
+              </h3>
+              {selectedEvent.description && (
+                <p className="text-sm text-muted-foreground">
+                  {selectedEvent.description}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <span>
+                {format(selectedEvent.start, "PPP 'at' p")} -{" "}
+                {format(selectedEvent.end, "p")}
+              </span>
+            </div>
             {onDelete && (
-              <div className="pt-2">
+              <div className="pt-2 border-t">
                 <Button
                   variant="destructive"
                   onClick={() => {
@@ -140,7 +166,8 @@ export default function MyCalendar({ events, onDelete }: { events: Event[]; onDe
                     }
                   }}
                 >
-                  Delete Note
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Event
                 </Button>
               </div>
             )}
@@ -153,7 +180,7 @@ export default function MyCalendar({ events, onDelete }: { events: Event[]; onDe
         events={events}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 650 }}
+        style={{ height: 700 }}
         defaultView="month"
         popup
         popupOffset={20}
@@ -162,7 +189,9 @@ export default function MyCalendar({ events, onDelete }: { events: Event[]; onDe
             backgroundColor: event.color,
             color: event.textColor,
             borderRadius: "6px",
-            padding: "2px",
+            padding: "4px 8px",
+            border: "none",
+            fontSize: "0.875rem",
           },
         })}
         components={{
